@@ -1,0 +1,7 @@
+*.dcu
+*.identcache
+*.local
+*.user
+__history
+*.skincfg
+__recovery

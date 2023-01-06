@@ -1,7 +1,7 @@
 object Form1: TForm1
   Left = 0
   Top = 0
-  Caption = 'NTFS-MFT ÎÄ¼þ¼ìË÷'
+  Caption = 'NTFS-MFT '#25991#20214#26816#32034
   ClientHeight = 686
   ClientWidth = 1122
   Color = clBtnFace
@@ -22,7 +22,7 @@ object Form1: TForm1
     Left = 8
     Top = 8
     Width = 1106
-    Height = 557
+    Height = 541
     Anchors = [akLeft, akTop, akRight, akBottom]
     Columns = <
       item
@@ -50,14 +50,12 @@ object Form1: TForm1
     TabOrder = 0
     ViewStyle = vsReport
     OnData = lvFilesData
-    ExplicitWidth = 1102
-    ExplicitHeight = 556
   end
   object mmoLog: TMemo
     Left = 8
-    Top = 571
+    Top = 560
     Width = 1106
-    Height = 107
+    Height = 118
     Anchors = [akLeft, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -65,8 +63,8 @@ object Form1: TForm1
     Font.Name = #23435#20307
     Font.Style = []
     ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssVertical
     TabOrder = 1
-    ExplicitTop = 570
-    ExplicitWidth = 1102
   end
 end

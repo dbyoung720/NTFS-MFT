@@ -135,6 +135,7 @@ begin
       strTip := strTip + ',' + lstDrivers.Strings[I][1];
     end;
     mmoLog.Lines.Add(Format('%s 共计 %d 个逻辑盘待搜索', [RightStr(strTip, Length(strTip) - 1), lstDrivers.Count]));
+    mmoLog.Lines.Add('搜索中，请稍等﹒﹒﹒﹒﹒﹒');
 
     { 多线程搜索所有 NTFS 磁盘所有文件 }
     FintThreadCount := lstDrivers.Count;
@@ -164,14 +165,13 @@ begin
 
   if FintThreadCount = 0 then
   begin
-    mmoLog.Lines.Add('全部搜索完毕');
-
     Count := 0;
     for I := Low(FlstFiles) to High(FlstFiles) do
     begin
       Count := Count + FlstFiles[I].Count;
     end;
     lvFiles.Items.Count := Count;
+    mmoLog.Lines.Add(Format('全部搜索完毕。文件总数：%d', [Count]));
   end;
 end;
 

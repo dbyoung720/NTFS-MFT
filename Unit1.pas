@@ -15,6 +15,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
   private
+    FintStartTime      : Cardinal;
     FintThreadCount    : Integer;
     FlstFiles          : array of TList;
     FLogicalDriveHandle: THashedStringList;
@@ -141,11 +142,12 @@ begin
     FintThreadCount := lstDrivers.Count;
     SetLength(FlstFiles, FintThreadCount);
     FLogicalDriveHandle := THashedStringList.Create;
+    FintStartTime       := GetTickCount;
     for I               := 0 to lstDrivers.Count - 1 do
     begin
       FlstFiles[I] := TList.Create;
       chrDriveName := lstDrivers.Strings[I][1];
-      hRootHandle  := CreateFile(PChar('\\.\' + chrDriveName + ':'), GENERIC_READ or GENERIC_WRITE, FILE_SHARE_READ or FILE_SHARE_WRITE, nil, OPEN_EXISTING, 0, 0);
+      hRootHandle  := CreateFileA(PAnsiChar(AnsiString('\\.\' + chrDriveName + ':')), GENERIC_READ or GENERIC_WRITE, FILE_SHARE_READ or FILE_SHARE_WRITE, nil, OPEN_EXISTING, 0, 0);
       FLogicalDriveHandle.Add(Format('%s=%d', [chrDriveName, hRootHandle]));
       TSearchMFT.Create(chrDriveName, Handle, FlstFiles[I], hRootHandle);
     end;
@@ -157,11 +159,16 @@ end;
 { 搜索单磁盘结束 }
 procedure TForm1.WMSEARCHDRIVEFILEFINISHED(var msg: TMessage);
 var
-  I    : Integer;
-  Count: Integer;
+  I          : Integer;
+  Count      : Integer;
+  intStopTime: Cardinal;
+  strTip     : String;
 begin
   Dec(FintThreadCount);
-  mmoLog.Lines.Add(string(PChar(msg.LParam)));
+
+  intStopTime := GetTickCount;
+  strTip      := Format('%s:\ 搜索完毕。文件总数：%0.8d。用时：%0.3d 秒', [Chr(msg.WParam), msg.LParam, (intStopTime - FintStartTime) div 1000]);
+  mmoLog.Lines.Add(strTip);
 
   if FintThreadCount = 0 then
   begin
@@ -171,7 +178,7 @@ begin
       Count := Count + FlstFiles[I].Count;
     end;
     lvFiles.Items.Count := Count;
-    mmoLog.Lines.Add(Format('全部搜索完毕。文件总数：%d', [Count]));
+    mmoLog.Lines.Add(Format('全部搜索完毕。文件总数：%0.8d', [Count]));
   end;
 end;
 

@@ -50,6 +50,8 @@ object Form1: TForm1
     TabOrder = 0
     ViewStyle = vsReport
     OnData = lvFilesData
+    ExplicitWidth = 1102
+    ExplicitHeight = 540
   end
   object mmoLog: TMemo
     Left = 8
@@ -66,5 +68,7 @@ object Form1: TForm1
     ReadOnly = True
     ScrollBars = ssVertical
     TabOrder = 1
+    ExplicitTop = 559
+    ExplicitWidth = 1102
   end
 end

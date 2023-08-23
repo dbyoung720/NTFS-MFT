@@ -36,7 +36,7 @@ type
   PUSN = ^USN;
 
   USN = record
-    RecordLength: Cardinal;
+    RecordLength: Integer;
     MajorVersion: Word;
     MinorVersion: Word;
     FileReferenceNumber: UInt64;       // Int64Rec;
@@ -100,41 +100,26 @@ begin
 end;
 
 procedure TSearchMFT.Execute;
-  procedure MyMove(const Source; var Dest; Count: NativeInt); assembler;
-  asm
-    FILD    QWORD PTR [EAX]
-    FISTP   QWORD PTR [EDX]
-  end;
 var
-  cjd         : CREATE_USN_JOURNAL_DATA;
-  ujd         : USN_JOURNAL_DATA;
-  djd         : DELETE_USN_JOURNAL_DATA;
-  dwRet       : DWORD;
-  int64Size   : Integer;
-  BufferOut   : array [0 .. BUF_LEN - 1] of Char;
-  BufferIn    : MFT_ENUM_DATA;
-  UsnInfo     : PUSN;
-  intST, intET: Cardinal;
-  strTip      : String;
-  intCount    : Integer;
+  cjd      : CREATE_USN_JOURNAL_DATA;
+  ujd      : USN_JOURNAL_DATA;
+  djd      : DELETE_USN_JOURNAL_DATA;
+  dwRet    : DWORD;
+  int64Size: Integer;
+  BufferOut: array [0 .. BUF_LEN - 1] of Char;
+  BufferIn : MFT_ENUM_DATA;
+  UsnInfo  : PUSN;
+  intCount : Integer;
 begin
-  strTip   := '';
-  intST    := GetTickCount;
   intCount := 0;
   try
     { 初始化USN日志文件 }
     if not DeviceIoControl(FhVol, FSCTL_CREATE_USN_JOURNAL, @cjd, SizeOf(cjd), nil, 0, dwRet, nil) then
-    begin
-      strTip := '初始化 ' + FchrDrive + ':\ USN失败';
       Exit;
-    end;
 
     { 获取USN日志基本信息 }
     if not DeviceIoControl(FhVol, FSCTL_QUERY_USN_JOURNAL, nil, 0, @ujd, SizeOf(ujd), dwRet, nil) then
-    begin
-      strTip := '获取 ' + FchrDrive + ':\ USN失败';
       Exit;
-    end;
 
     { 枚举USN日志文件中的所有记录 }
     int64Size                         := SizeOf(Int64);
@@ -145,7 +130,7 @@ begin
     begin
       { 找到第一个 USN 记录 }
       dwRet   := dwRet - Cardinal(int64Size);
-      UsnInfo := PUSN(Integer(@(BufferOut)) + int64Size);
+      UsnInfo := PUSN(NativeInt(@(BufferOut)) + int64Size);
       while dwRet > 0 do
       begin
         { 获取文件信息 }
@@ -154,9 +139,9 @@ begin
 
         { 获取下一个 USN 记录 }
         Dec(dwRet, UsnInfo^.RecordLength);
-        UsnInfo := PUSN(Cardinal(UsnInfo) + UsnInfo^.RecordLength);
+        UsnInfo := PUSN(NativeInt(UsnInfo) + UsnInfo^.RecordLength);
       end;
-      MyMove(BufferOut, BufferIn, int64Size);
+      Move(BufferOut, BufferIn, int64Size);
     end;
 
     { 删除USN日志文件信息 }
@@ -164,9 +149,7 @@ begin
     djd.DeleteFlags  := USN_DELETE_FLAG_DELETE;
     DeviceIoControl(FhVol, FSCTL_DELETE_USN_JOURNAL, @djd, SizeOf(djd), nil, 0, dwRet, nil);
   finally
-    intET  := GetTickCount;
-    strTip := Format('%s:\，文件总数：%0.8d，搜索用时：%0.3d 秒。', [FchrDrive, intCount, (intET - intST) div 1000]) + '  ' + strTip;
-    SendMessage(FhMainForm, WM_SEARCHDRIVEFILEFINISHED, 0, Integer(PChar(strTip)));
+    PostMessage(FhMainForm, WM_SEARCHDRIVEFILEFINISHED, Byte(FchrDrive), intCount);
   end;
 end;
 

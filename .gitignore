@@ -5,3 +5,7 @@
 __history
 *.skincfg
 __recovery
+*.eof
+*.drc
+/Win64
+/Win32

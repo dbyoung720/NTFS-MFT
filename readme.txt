@@ -1,4 +1,4 @@
-Fastest NTFS-MFT file retrieval, surport x86/x64
+Fastest NTFS-MFT file retrieval, support x86/x64
 
 最快的 NTFS-MFT 文件检索，支持 x86/x64
 
